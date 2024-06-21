@@ -8,6 +8,7 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
 - `main.tex`: Il file principale del documento LaTeX che utilizza il file di stile.
 - `bibliography.bib`: Il file contenente le voci bibliografiche in formato BibTeX.
 - `README.md`: Questo file, contenente informazioni su come utilizzare il template.
+- `Makefile`: File GNU make, contenente i targets per la compilazione.
 
 ## Caratteristiche del Template
 
@@ -86,6 +87,38 @@ Per generare la bibliografia usando BibTeX, segui questi passaggi:
    - Controlla il documento compilato per assicurarti che le citazioni siano correttamente collegate alla bibliografia generata.
 
 Assicurati di seguire questi passaggi per gestire e aggiornare la bibliografia nel tuo documento LaTeX utilizzando BibTeX.
+
+6. **For Dummies: Utilizzo di make e make clean**
+Il repository include un Makefile per semplificare il processo di compilazione e gestione del progetto LaTeX. Ecco come utilizzare i comandi principali:
+
+- **Compilazione del Documento**
+Per compilare il documento LaTeX utilizzando make, segui questi passaggi:
+
+  - Compila il documento principale:
+
+  - Assicurati di trovarti nella directory principale del repository.
+    ```bash
+    make
+    ```
+    Questo comando eseguirà la compilazione del documento LaTeX utilizzando xelatex.
+
+    Se necessario, il comando make può essere esplicitamente specificato con il nome del file principale del tuo documento (senza l'estensione .tex), ad esempio make main.
+- **Pulizia del Progetto**
+Per pulire i file temporanei generati durante la compilazione, puoi utilizzare il comando make clean:
+
+    - Pulisci i file temporanei:
+
+    ```bash
+    make clean
+    ```
+    Questo comando rimuoverà i file intermedi e i file ausiliari generati durante la compilazione, come i file .aux, .log, e altri file temporanei.
+
+- **Personalizzazione**
+    Il file Makefile può essere personalizzato per includere altri target o adattarsi alle tue specifiche esigenze di compilazione.
+
+    Assicurati che il file main.tex contenga tutte le configurazioni necessarie per la tua tesina, inclusi i pacchetti e le impostazioni personalizzate.
+
+    Utilizzando make e make clean in questo modo, puoi gestire facilmente la compilazione e la pulizia del tuo progetto LaTeX, mantenendo il tuo ambiente di sviluppo organizzato e efficiente.
 
 ## Dipendenze
 

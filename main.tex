@@ -5,6 +5,11 @@
 \author{}
 \date{}
 
+% Sovrascrivi le impostazioni di hyperref per l'indice
+\hypersetup{
+    linkcolor=black, % Imposta il colore dei link dell'indice a nero
+}
+
 \begin{document}
 
 % Pagina 1: Titolo e riassunto
@@ -18,6 +23,10 @@
 
 Testo del riassunto...
 
+% Genera l'indice
+\tableofcontents  
+
+
 % Pagina 2: Introduzione e resto del testo
 \newpage
 
@@ -27,6 +36,7 @@ Testo dell'introduzione...
 \section{Sezione Principale}
 Testo della sezione principale...
 
+esempio di citazione : secondo Einstein \cite{einstein1905}
 \subsection{Sottosezione}
 Testo della sottosezione...
 
@@ -35,6 +45,7 @@ Testo della sottosezione...
 
 
 % Aggiungi la bibliografia
+\newpage % ---- Inizia una nuova pagina prima della bibliografia
 \bibliographystyle{plain}
 \bibliography{bibliography}
 
