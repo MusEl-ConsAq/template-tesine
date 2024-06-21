@@ -6,6 +6,7 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
 
 - `mystyle.sty`: Il file di stile personalizzato che definisce la formattazione del documento.
 - `main.tex`: Il file principale del documento LaTeX che utilizza il file di stile.
+- `bibliography.bib`: Il file contenente le voci bibliografiche in formato BibTeX.
 - `README.md`: Questo file, contenente informazioni su come utilizzare il template.
 
 ## Caratteristiche del Template
@@ -41,10 +42,50 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
     xelatex main.tex
     ```
 
-3. **Modifica il contenuto:**
+3. **Genera la bibliografia:**
+Per generare la bibliografia usando BibTeX, segui questi passaggi:
+- Compila il documento con XeLaTeX:
+    ```bash
+    xelatex main.tex
+    ```
+- Esegui BibTeX per generare la bibliografia:
+    ```bash
+    bibtex main.aux
+    ```
+- Compila nuovamente il documento due volte con XeLaTeX per aggiornare le citazioni e la bibliografia:
+    ```bash
+    xelatex main.tex
+    xelatex main.tex
+    ```
 
-- Apri main.tex e modifica il titolo, il riassunto e il contenuto delle sezioni secondo le tue esigenze.
-- Puoi aggiungere nuove sezioni e sottosezioni seguendo la struttura esistente.
+## Modifica il contenuto
+
+1. **Apri il file `main.tex`**:
+   - Modifica il titolo, il riassunto e il contenuto delle sezioni secondo le tue esigenze.
+   - Puoi aggiungere nuove sezioni e sottosezioni seguendo la struttura esistente.
+
+2. **Gestisci la bibliografia con BibTeX**:
+   - Crea o modifica il file `bibliography.bib` per includere tutte le voci bibliografiche necessarie nel formato BibTeX.
+   - Inserisci le citazioni nel testo utilizzando i comandi LaTeX appropriati (come `\cite{}`).
+
+3. **Compila la bibliografia con BibTeX**:
+   - Dopo aver compilato `main.tex` con XeLaTeX o LuaLaTeX, esegui BibTeX per generare la bibliografia.
+     ```bash
+     bibtex main.aux
+     ```
+   - Questo comando utilizzerà le citazioni nel documento per estrarre le informazioni bibliografiche dal file `bibliography.bib` e generare correttamente la bibliografia.
+
+4. **Compila nuovamente il documento**:
+   - Dopo aver eseguito BibTeX, compila nuovamente `main.tex` due volte con XeLaTeX o LuaLaTeX per aggiornare le citazioni e la bibliografia nel documento finale.
+     ```bash
+     xelatex main.tex
+     xelatex main.tex
+     ```
+
+5. **Verifica e revisiona**:
+   - Controlla il documento compilato per assicurarti che le citazioni siano correttamente collegate alla bibliografia generata.
+
+Assicurati di seguire questi passaggi per gestire e aggiornare la bibliografia nel tuo documento LaTeX utilizzando BibTeX.
 
 ## Dipendenze
 
