@@ -9,6 +9,8 @@
 \RequirePackage{fontspec}
 \RequirePackage{fancyhdr}
 \RequirePackage{hyperref}
+\RequirePackage{titling}
+
 
 % links siano visibili e cliccabili nel documento PDF generato
 \hypersetup{
@@ -27,8 +29,8 @@
 % Imposta intestazione e piè di pagina
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[C]{\myauthorfirstname{} \myauthorlastname{}}
-\fancyhead[C]{\nouppercase{\leftmark}}  % Mostra l'autore e il titolo nella riga orizzontale
+\fancyhead[C]{\fontsize{12}{15}\mycustomtitle} % Mostra il titolo della tesina nella header
+\fancyhead[R]{\ifdefined\@author\@author\fi} % Mostra l'autore (nome e cognome)
 \fancyfoot[C]{\thepage}
 
 % Configura titoli di sezione
@@ -46,5 +48,6 @@
 
 % Configura note a piè di pagina
 \renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
+
 
 \endinput
