@@ -1,0 +1,40 @@
+% ME_AQ_temp.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ME_AQ_temp}[2024/06/21 Custom style for thesis]
+
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{geometry}
+\RequirePackage{setspace}
+\RequirePackage{titlesec}
+\RequirePackage{fontspec}
+\RequirePackage{fancyhdr}
+\RequirePackage{hyperref}
+
+% Imposta margini
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2cm, right=2cm}
+
+% Imposta carattere Arial
+\setmainfont{Arial}
+
+% Imposta intestazione e piè di pagina
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+
+% Configura titoli di sezione
+\titleformat{\section}
+  {\normalfont\fontsize{12}{15}\bfseries\uppercase}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\fontsize{12}{15}\itshape}{\thesubsection}{1em}{}
+
+% Configura spaziatura
+\setstretch{1}
+
+% Configura spaziatura tra paragrafi
+\setlength{\parskip}{\baselineskip}
+\setlength{\parindent}{0pt}
+
+% Configura note a piè di pagina
+\renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
+
+\endinput
