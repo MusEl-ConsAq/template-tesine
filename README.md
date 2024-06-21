@@ -7,8 +7,8 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
 - `mystyle.sty`: Il file di stile personalizzato che definisce la formattazione del documento.
 - `main.tex`: Il file principale del documento LaTeX che utilizza il file di stile.
 - `bibliography.bib`: Il file contenente le voci bibliografiche in formato BibTeX.
-- `README.md`: Questo file, contenente informazioni su come utilizzare il template.
 - `Makefile`: File GNU make, contenente i targets per la compilazione.
+- `README.md`: Questo file, contenente informazioni su come utilizzare il template.
 
 ## Caratteristiche del Template
 
@@ -36,28 +36,28 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
 
 2. **Compila il documento:**
 
-- Assicurati di avere una distribuzione LaTeX installata sul tuo sistema (ad esempio, TeX Live o MiKTeX).
-- Compila main.tex con il tuo editor LaTeX preferito o da linea di comando:
+   - Assicurati di avere una distribuzione LaTeX installata sul tuo sistema (ad esempio, TeX Live o MiKTeX).
+   - Compila main.tex con il tuo editor LaTeX preferito o da linea di comando:
 
     ```bash
     xelatex main.tex
     ```
 
 3. **Genera la bibliografia:**
-Per generare la bibliografia usando BibTeX, segui questi passaggi:
-- Compila il documento con XeLaTeX:
-    ```bash
-    xelatex main.tex
-    ```
-- Esegui BibTeX per generare la bibliografia:
-    ```bash
-    bibtex main.aux
-    ```
-- Compila nuovamente il documento due volte con XeLaTeX per aggiornare le citazioni e la bibliografia:
-    ```bash
-    xelatex main.tex
-    xelatex main.tex
-    ```
+    Per generare la bibliografia usando BibTeX, segui questi passaggi:
+   - Compila il documento con XeLaTeX:
+        ```bash
+        xelatex main.tex
+        ```
+   - Esegui BibTeX per generare la bibliografia:
+        ```bash
+        bibtex main.aux
+        ```
+   - Compila nuovamente il documento due volte con XeLaTeX per aggiornare le citazioni e la bibliografia:
+        ```bash
+        xelatex main.tex
+        xelatex main.tex
+        ```
 
 ## Modifica il contenuto
 
