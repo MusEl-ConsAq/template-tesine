@@ -38,7 +38,7 @@ Questo repository contiene un template LaTeX per la stesura delle tesine di musi
 - Compila main.tex con il tuo editor LaTeX preferito o da linea di comando:
 
     ```bash
-    pdflatex main.tex
+    xelatex main.tex
     ```
 
 3. **Modifica il contenuto:**
