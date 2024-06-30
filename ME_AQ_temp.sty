@@ -10,7 +10,9 @@
 \RequirePackage{fancyhdr}
 \RequirePackage{hyperref}
 \RequirePackage{titling}
-
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
 
 % links siano visibili e cliccabili nel documento PDF generato
 \hypersetup{
@@ -33,11 +35,21 @@
 \fancyhead[R]{\ifdefined\@author\@author\fi} % Mostra l'autore (nome e cognome)
 \fancyfoot[C]{\thepage}
 
+
+
+% Impostazione della profondità di numerazione delle sezioni
+\setcounter{secnumdepth}{3}
+
 % Configura titoli di sezione
 \titleformat{\section}
   {\normalfont\fontsize{12}{15}\bfseries\uppercase}{\thesection}{1em}{}
 \titleformat{\subsection}
   {\normalfont\fontsize{12}{15}\itshape}{\thesubsection}{1em}{}
+  \titleformat{\subsubsection}
+  {\normalfont\fontsize{12}{12}\itshape} % Formato del testo
+  {\thesubsubsection} % Etichetta
+  {1em} % Spazio tra etichetta e titolo
+  {} % Formato prima del titolo
 
 % Configura spaziatura
 \setstretch{1}
@@ -49,5 +61,29 @@
 % Configura note a piè di pagina
 \renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
 
+
+% Aggiunta dei comandi personalizzati per le convenzioni di redazione
+\newcommand{\titoloart}[2]{\textit{#1} (#2)}
+\newcommand{\linguaest}[1]{\textit{#1}}
+\newcommand{\titoloarticulo}[1]{``#1''}
+% Comando per parole tecniche
+% Comando per parole tecniche con spiegazione opzionale
+
+\newcommand{\persona}[3]{#1 (#2--#3)}
+% Definizione del comando per aggiungere una spiegazione per una parola tecnica
+\newcommand{\parolatecnica}[2]{%
+    \expandafter\newcommand\csname spiegazione#1\endcsname{#2}%
+}
+
+% Comando per citazioni brevi
+\newcommand{\citazionebreve}[2]{``#1'' (#2)}
+
+% Comando per citazioni estese
+\newcommand{\citazioneestesa}[3]{%
+    \begin{quote}\small\noindent%
+    #1\\%
+    \mbox{}\hfill(#2, p.#3)%
+    \end{quote}%
+}
 
 \endinput

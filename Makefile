@@ -1,7 +1,7 @@
 # Makefile per compilare il documento LaTeX con XeLaTeX e BibTeX
 
 # Nome del file principale LaTeX (senza l'estensione .tex)
-FILENAME = main
+FILENAME ?= main
 
 # Comandi per i tool
 LATEX = xelatex
