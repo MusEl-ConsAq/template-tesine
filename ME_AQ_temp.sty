@@ -2,6 +2,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{ME_AQ_temp}[2024/06/21 Custom style for thesis]
 
+\RequirePackage[italian]{babel}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{geometry}
 \RequirePackage{setspace}
@@ -13,6 +14,10 @@
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
 \RequirePackage{amssymb}
+\RequirePackage{graphicx}
+\RequirePackage{caption}
+\RequirePackage{svg}
+\RequirePackage{float}
 
 % links siano visibili e cliccabili nel documento PDF generato
 \hypersetup{
@@ -28,15 +33,29 @@
 % Imposta carattere Arial
 \setmainfont{Arial}
 
-% Imposta intestazione e piè di pagina
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[C]{\fontsize{12}{15}\mycustomtitle} % Mostra il titolo della tesina nella header
-\fancyhead[R]{\ifdefined\@author\@author\fi} % Mostra l'autore (nome e cognome)
-\fancyfoot[C]{\thepage}
+% Comando per il pre-titolo (informazioni accademiche)
+\newcommand{\pretitleinfo}{Corsi Accademici di Musica Elettronica / DCPL34 \\ Conservatorio A. Casella, L'Aquila}
 
 
+% Imposta intestazione e piè di pagina per la prima pagina
+\fancypagestyle{primaPagina}{
+  \fancyhf{}
+  \fancyhead[C]{\fontsize{12}{15}\pretitleinfo \\ \mycustomtitle} % Intestazione con pre-titolo e titolo della tesina
+  \fancyhead[R]{\ifdefined\@author\@author\fi}   % Autore (nome e cognome)
+  \fancyfoot[C]{\thepage} % Piè di pagina con il numero della pagina
+  \renewcommand{\headrulewidth}{0pt} % Rimuove la linea orizzontale
+}
 
+% Rimuovi intestazioni dalle altre pagine
+\fancypagestyle{altrePagine}{
+\pagestyle{plain}
+}
+
+% Imposta il comportamento di default
+\pagestyle{altrePagine}
+
+% Aggiungi al documento principale, nella prima pagina, il comando per usare lo stile della prima pagina
+\AtBeginDocument{\thispagestyle{primaPagina}}
 % Impostazione della profondità di numerazione delle sezioni
 \setcounter{secnumdepth}{3}
 
@@ -45,7 +64,7 @@
   {\normalfont\fontsize{12}{15}\bfseries\uppercase}{\thesection}{1em}{}
 \titleformat{\subsection}
   {\normalfont\fontsize{12}{15}\itshape}{\thesubsection}{1em}{}
-  \titleformat{\subsubsection}
+\titleformat{\subsubsection}
   {\normalfont\fontsize{12}{12}\itshape} % Formato del testo
   {\thesubsubsection} % Etichetta
   {1em} % Spazio tra etichetta e titolo
@@ -61,13 +80,11 @@
 % Configura note a piè di pagina
 \renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
 
-
 % Aggiunta dei comandi personalizzati per le convenzioni di redazione
 \newcommand{\titoloart}[2]{\textit{#1} (#2)}
 \newcommand{\linguaest}[1]{\textit{#1}}
 \newcommand{\titoloarticulo}[1]{``#1''}
 % Comando per parole tecniche
-% Comando per parole tecniche con spiegazione opzionale
 
 \newcommand{\persona}[3]{#1 (#2--#3)}
 % Definizione del comando per aggiungere una spiegazione per una parola tecnica
