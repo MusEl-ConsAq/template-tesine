@@ -18,7 +18,7 @@
 \RequirePackage{caption}
 \RequirePackage{svg}
 \RequirePackage{float}
-
+\RequirePackage{wrapfig}
 % links siano visibili e cliccabili nel documento PDF generato
 \hypersetup{
     colorlinks=true, % colora i link invece di riquadrarli
@@ -87,6 +87,7 @@
 % Comando per parole tecniche
 
 \newcommand{\persona}[3]{#1 (#2--#3)}
+\newcommand{\personaViva}[2]{#1 (#2)}
 % Definizione del comando per aggiungere una spiegazione per una parola tecnica
 \newcommand{\parolatecnica}[2]{%
     \expandafter\newcommand\csname spiegazione#1\endcsname{#2}%
