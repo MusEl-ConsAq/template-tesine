@@ -42,56 +42,6 @@ PERSONA_APPLIED_SET = set()
 # Formato: "Nome Canonico": {"variants": ["Variante 1", "Altro Nome"], "birth": "AAAA", "death": "BBBB"}
 # Le varianti devono essere ordinate dalla più lunga/specifica alla più corta.
 KNOWN_PEOPLE = {
-    "Giacinto Scelsi": {
-        "variants": ["Giacinto Scelsi (1905-1988)", "Giacinto Scelsi", "Scelsi"],
-        "birth": "1905", "death": "1988"
-    },
-    "Nicola Bernardini": {
-        "variants": ["Prof. Nicola Bernardini", "Nicola Bernardini", "Bernardini"],
-        "birth": "1956", "death": " " # Date non specificate nel testo
-    },
-    "Barbara Boido": {
-        "variants": ["Barbara Boido"], # Aggiungere "Boido" se usato da solo e non ambiguo
-        "birth": "9999", "death": "9999"
-    },
-    "Frances Marie Uitti": {
-        "variants": ["Frances Marie Uitti"],
-        "birth": "9999", "death": "9999"
-    },
-    "Friedrich Jaecker": {
-        "variants": ["Friedrich Jaecker", "Jaecker"],
-        "birth": "9999", "death": "9999"
-    },
-    "Vieri Tosatti": {
-        "variants": ["Vieri Tosatti", "Tosatti"],
-        "birth": "9999", "death": "9999"
-    },
-    "Sergio Cafaro": {
-        "variants": ["Sergio Cafaro", "Cafaro"],
-        "birth": "9999", "death": "9999"
-    },
-    "Enrico Filippini": { # Corretto da "Filippone"
-        "variants": ["Enrico Filippini", "Filippini"],
-        "birth": "9999", "death": "9999"
-    },
-    "Georges Jenny": {
-        "variants": ["Georges Jenny"],
-        "birth": "9999", "death": "9999"
-    },
-    "Anna Carla Pellegrini": { # Aggiunta basata sulle fonti bibliografiche
-        "variants": ["Anna Carla Pellegrini", "Pellegrini"], # Attenzione: "Pellegrini" è ambiguo
-        "birth": "9999", "death": "9999"
-    },
-    "Costantino Grana": { # Dalle fonti
-        "variants": ["Costantino Grana"], "birth": "9999", "death": "9999"
-    },
-    "Rita Cucchiara": { # Dalle fonti
-        "variants": ["Rita Cucchiara"], "birth": "9999", "death": "9999"
-    },
-    "Laurent Fourier": { # Dalle fonti
-        "variants": ["Laurent Fourier"], "birth": "9999", "death": "9999"
-    }
-    # Aggiungere altre persone note se necessario
 }
 
 raw_bibliography_notes = {} # { (filename, md_key): "full citation text" }
