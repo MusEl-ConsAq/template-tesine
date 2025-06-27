@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 # Directory di input contenente i file Markdown (.md)
 # Assumiamo che lo script sia eseguito dalla directory GRDM-TETDRA-I
 # e che i file .md siano direttamente in essa (o in una sottodirectory specificata)
-INPUT_DIR_MD = Path("sections_md") # Directory corrente, dove si trovano i file .md
+INPUT_DIR_MD = Path("MarkDownSections") # Directory corrente, dove si trovano i file .md
 # Se i tuoi file .md fossero in una sottodirectory, ad esempio "markdown_sources":
 # INPUT_DIR_MD = Path("markdown_sources")
 
@@ -18,15 +18,19 @@ INPUT_DIR_MD = Path("sections_md") # Directory corrente, dove si trovano i file 
 # e per l'inclusione in sections/all.tex
 MD_FILES_ORDER = [
     "introduzione.md",
-    "sezioneI.md",
-    "sezioneII.md",
-    "sezioneIII.md",
-    "sezioneIV.md"
-    # Aggiungi qui "conclusione.md" se lo avrai
+    "capitolo1.md",
+    "capitolo2.md",
+    "capitolo3.md",
+    "capitolo4.md",
+    "capitolo5.md",
+    "capitolo6.md",
+    "capitolo7.md",    
+    "capitolo8.md",    
+    "conclusione.md"    
 ]
 
 # Directory di output per i file .tex generati
-OUTPUT_DIR_TEX = Path("sexons") # Creeremo una nuova cartella per non sovrascrivere la tua 'sections'
+OUTPUT_DIR_TEX = Path("sections") # Creeremo una nuova cartella per non sovrascrivere la tua 'sections'
 
 # File principale LaTeX e file di stile (per riferimento, non li modifichiamo in questa fase)
 MAIN_TEX_FILE = Path("main.tex")
@@ -365,11 +369,83 @@ def remove_transcription_citations(text: str) -> str:
     print("    - Rimosse citazioni 'Trascrizione...' e loro definizioni dal testo LaTeX")
     return text
 
+def convert_code_blocks(text: str) -> str:
+    """Converte blocchi di codice Markdown in ambienti listings di LaTeX."""
+    pattern = re.compile(r"```(\w*)\n(.*?)\n```", re.DOTALL)
+
+    def replacer_logic(match):
+        language = match.group(1).strip()
+        code = match.group(2)
+        
+        # Mapping dei linguaggi per listings LaTeX
+        language_mapping = {
+            'csound': 'C',           # Csound → C
+            'yaml': 'Python',        # YAML → Python (per la sintassi)
+            'yml': 'Python',         # YML → Python  
+            'json': 'Python',        # JSON → Python
+            'bash': 'bash',          # Bash è supportato
+            'shell': 'bash',         # Shell → bash
+            'javascript': 'Java',    # JavaScript → Java (simile)
+            'js': 'Java',            # JS → Java
+            'markdown': 'TeX',       # Markdown → TeX
+            'md': 'TeX',             # MD → TeX
+        }
+        
+        # Opzione per specificare il linguaggio in LaTeX
+        if language:
+            # Converti il linguaggio usando il mapping, oppure usa il linguaggio originale
+            mapped_language = language_mapping.get(language.lower(), language.capitalize())
+            language_option = f"[language={mapped_language}]"
+        else:
+            language_option = ""
+            
+        # Ritorna l'ambiente LaTeX
+        return f"\\begin{{lstlisting}}{language_option}\n{code}\n\\end{{lstlisting}}"
+
+    processed_text = pattern.sub(replacer_logic, text)
+    if processed_text != text:
+        logging.info("    - Convertiti blocchi di codice in ambiente 'listings' con mapping linguaggi")
+    
+    return processed_text
+
+def convert_bulleted_lists(text: str) -> str:
+    """Converte elenchi puntati Markdown in ambiente itemize LaTeX."""
+    processed_text = []
+    in_list = False
+    for line in text.splitlines():
+        # Cerca linee che iniziano con "- " (lista puntata)
+        match = re.match(r"^\s*-\s+(.*)", line)
+        if match:
+            item_content = match.group(1)
+            # Gestisce il grassetto negli item (es. - **Titolo**: testo)
+            item_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", item_content)
+            if not in_list:
+                processed_text.append("\\begin{itemize}")
+                in_list = True
+            processed_text.append(f"    \\item {item_content}")
+        else:
+            if in_list:
+                processed_text.append("\\end{itemize}")
+                in_list = False
+            processed_text.append(line)
+    
+    if in_list: # Chiudi l'elenco se il file finisce con esso
+        processed_text.append("\\end{itemize}")
+        
+    logging.info("    - Convertiti elenchi puntati")
+    return "\n".join(processed_text)
+
+
+
 def convert_headings(text: str) -> str:
-    text = re.sub(r"^\s*###\s*\*\*[\d\.]*\s*(.*?)\*\*\s*$", r"\\subsection{\1}", text, flags=re.MULTILINE)
-    text = re.sub(r"^\s*##\s*\*\*[\d\.]*\s*(.*?)\*\*\s*$", r"\\section{\1}", text, flags=re.MULTILINE)
-    text = re.sub(r"^\s*#\s*\*\*(.*?)\*\*\s*$", r"\\section{\1}", text, flags=re.MULTILINE)
-    logging.info("    - Convertiti i titoli")
+    # Versione modificata per accettare titoli standard (senza grassetto obbligatorio)
+    # Cerca: ### Titolo
+    text = re.sub(r"^\s*###\s+(.*?)(\s+\{.*\})?\s*$", r"\\subsubsection{\1}", text, flags=re.MULTILINE)
+    # Cerca: ## Titolo
+    text = re.sub(r"^\s*##\s+(.*?)(\s+\{.*\})?\s*$", r"\\subsection{\1}", text, flags=re.MULTILINE)
+    # Cerca: # Titolo
+    text = re.sub(r"^\s*#\s+(.*?)(\s+\{.*\})?\s*$", r"\\section{\1}", text, flags=re.MULTILINE)
+    logging.info("    - Convertiti i titoli (usando regole standard)")
     return text
 
 def convert_emphasis_quotes(text: str) -> str:
@@ -379,31 +455,97 @@ def convert_emphasis_quotes(text: str) -> str:
 
 def convert_numbered_lists(text: str) -> str:
     """Converte elenchi numerati Markdown in ambiente enumerate LaTeX."""
-    # Cerca blocchi di elenchi numerati
+    lines = text.splitlines()
     processed_text = []
     in_list = False
-    for line in text.splitlines():
+    i = 0
+    
+    while i < len(lines):
+        line = lines[i]
         match = re.match(r"^\s*(\d+)\.\s+(.*)", line)
+        
         if match:
             item_content = match.group(2)
-            # Semplice gestione del grassetto negli item (es. 1. **Titolo**: testo)
-            item_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", item_content)
+            
+            # Se non siamo già in una lista, iniziala
             if not in_list:
                 processed_text.append("\\begin{enumerate}")
                 in_list = True
+            
+            # Gestione del grassetto negli item
+            item_content = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", item_content)
             processed_text.append(f"    \\item {item_content}")
+            
+            # Controlla se ci sono linee successive che appartengono a questo item
+            # (linee che iniziano con spazi e non sono nuovi elementi della lista)
+            j = i + 1
+            while j < len(lines):
+                next_line = lines[j]
+                
+                # Se la prossima linea è un nuovo elemento numerato, fermati
+                if re.match(r"^\s*(\d+)\.\s+", next_line):
+                    break
+                
+                # Se la prossima linea è vuota, controllala ma continua
+                if not next_line.strip():
+                    j += 1
+                    continue
+                
+                # Se la prossima linea inizia con spazi (continuazione dell'item corrente)
+                if re.match(r"^\s+\S", next_line):
+                    # Aggiungi la linea continuativa all'item corrente
+                    continuation = re.sub(r"^\s+", "", next_line)  # Rimuovi indentazione
+                    continuation = re.sub(r"\*\*(.*?)\*\*", r"\\textbf{\1}", continuation)
+                    processed_text[-1] += f" {continuation}"
+                    j += 1
+                else:
+                    # Linea che non appartiene all'item, fermati
+                    break
+            
+            i = j - 1  # Imposta i alla linea prima di quella che non abbiamo processato
+            
         else:
-            if in_list:
-                processed_text.append("\\end{enumerate}")
-                in_list = False
-            processed_text.append(line)
+            # Non è un elemento di lista numerata
+            
+            # Se la linea è vuota e siamo in una lista, potrebbe essere spazio tra elementi
+            if not line.strip() and in_list:
+                # Guarda avanti per vedere se c'è un altro elemento numerato
+                j = i + 1
+                found_next_item = False
+                while j < len(lines):
+                    next_line = lines[j]
+                    if not next_line.strip():  # Altra linea vuota, continua a cercare
+                        j += 1
+                        continue
+                    elif re.match(r"^\s*(\d+)\.\s+", next_line):  # Trovato prossimo elemento
+                        found_next_item = True
+                        break
+                    else:  # Trovata linea non vuota che non è un elemento
+                        break
+                
+                if found_next_item:
+                    # C'è un altro elemento, mantieni la lista aperta e salta le righe vuote
+                    i = j - 1  # Sarà incrementato alla fine del loop
+                else:
+                    # Non c'è un altro elemento, chiudi la lista
+                    processed_text.append("\\end{enumerate}")
+                    in_list = False
+                    processed_text.append(line)
+            else:
+                # Linea normale o non siamo in una lista
+                if in_list:
+                    processed_text.append("\\end{enumerate}")
+                    in_list = False
+                processed_text.append(line)
+        
+        i += 1
     
-    if in_list: # Chiudi l'elenco se il file finisce con esso
+    # Chiudi la lista se il file finisce con essa
+    if in_list:
         processed_text.append("\\end{enumerate}")
         
     logging.info("    - Convertiti elenchi numerati")
     return "\n".join(processed_text)
-
 
 def manage_paragraphs(text: str) -> str:
     """Assicura la corretta spaziatura tra paragrafi per LaTeX."""
@@ -487,32 +629,311 @@ def apply_persona_command(text: str) -> str:
     logging.info("    - Tentativo di applicazione comando \\persona")
     return processed_text
 
+def convert_inline_code(text: str) -> str:
+    """Converte il codice inline Markdown (`codice`) in \texttt{codice} LaTeX."""
+    pattern = re.compile(r"(?<!`)`([^`\n]+?)`(?!`)") 
+
+    def replacer_logic(match):
+        code = match.group(1)
+        
+        # Prima gestisci caratteri Unicode speciali che non esistono in \texttt{}
+        unicode_replacements = {
+            '≈': r'$\approx$',      # Approx symbol -> math mode
+            'π': r'$\pi$',          # Pi symbol -> math mode  
+            '×': r'$\times$',       # Times symbol -> math mode
+            '÷': r'$\div$',         # Division symbol -> math mode
+            '±': r'$\pm$',          # Plus-minus -> math mode
+            '∞': r'$\infty$',       # Infinity -> math mode
+            '≤': r'$\leq$',         # Less or equal -> math mode
+            '≥': r'$\geq$',         # Greater or equal -> math mode
+            '≠': r'$\neq$',         # Not equal -> math mode
+            '²': r'$^2$',           # Superscript 2 -> math mode
+            '³': r'$^3$',           # Superscript 3 -> math mode
+        }
+        
+        # Sostituzioni Unicode prima di applicare \texttt{}
+        for unicode_char, latex_replacement in unicode_replacements.items():
+            if unicode_char in code:
+                # Se c'è un carattere Unicode, chiudi \texttt{}, inserisci math, riapri \texttt{}
+                # Usa concatenazione invece di f-string per evitare problemi con le graffe
+                replacement = "}}}" + latex_replacement + "\\texttt{{"
+                code = code.replace(unicode_char, replacement)
+        
+        # Poi gestisci i caratteri ASCII speciali
+        code = code.replace('\\', r'\textbackslash{}')
+        code = code.replace('{', r'\{')
+        code = code.replace('}', r'\}')
+        code = code.replace('_', r'\_')
+        code = code.replace('^', r'\textasciicircum{}')
+        code = code.replace('-', r'{-}')
+        code = code.replace('&', r'\&')
+        code = code.replace('%', r'\%')
+        code = code.replace('#', r'\#')
+        code = code.replace('$', r'\$')
+        code = code.replace('~', r'\textasciitilde{}')
+        code = code.replace('(', r'(')
+        code = code.replace(')', r')')
+        
+        # Gestisci il caso di \texttt{}} all'inizio se ci sono state sostituzioni Unicode
+        result = f"\\texttt{{{code}}}"
+        result = result.replace(r'\texttt{}', '')  # Rimuovi \texttt{} vuoti
+        
+        return result
+
+    processed_text = pattern.sub(replacer_logic, text)
+    if processed_text != text:
+        logging.info("    - Convertito codice inline con gestione Unicode")
+        
+    return processed_text
+
+# --- NUOVA FUNZIONE PER L'ESCAPE DEGLI UNDERSCORE ---
+
+def escape_ellipsis(text: str) -> str:
+    """Converte ... in \ldots nel testo normale, ma protegge i blocchi di codice."""
+    code_blocks = []
+    inline_code_blocks = []
+    
+    def save_code_block(match):
+        code_blocks.append(match.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+    
+    def save_inline_code(match):
+        inline_code_blocks.append(match.group(0))
+        return f"__INLINE_CODE_{len(inline_code_blocks)-1}__"
+    
+    # Proteggi blocchi di codice multilinea
+    text = re.sub(r"```.*?```", save_code_block, text, flags=re.DOTALL)
+    
+    # Proteggi codice inline
+    text = re.sub(r"(?<!_)`([^`\n]+?)`(?!_)", save_inline_code, text)
+    
+    # Proteggi comandi LaTeX già formattati
+    latex_commands = []
+    def save_latex_command(match):
+        latex_commands.append(match.group(0))
+        return f"__LATEX_CMD_{len(latex_commands)-1}__"
+    
+    text = re.sub(r'\\[a-zA-Z]+\{[^}]*\}', save_latex_command, text)
+    
+    # Converti i puntini di sospensione
+    # Gestisce sia ... (tre punti) che … (carattere Unicode ellipsis)
+    text = re.sub(r'\.{3,}', r'\\ldots', text)  # Tre o più punti consecutivi
+    text = text.replace('…', '\\ldots')          # Carattere Unicode ellipsis
+    
+    # Ripristina i comandi LaTeX
+    for i, cmd in enumerate(latex_commands):
+        text = text.replace(f"__LATEX_CMD_{i}__", cmd)
+    
+    # Ripristina blocchi di codice
+    for i, code_block in enumerate(code_blocks):
+        text = text.replace(f"__CODE_BLOCK_{i}__", code_block)
+    
+    for i, inline_code in enumerate(inline_code_blocks):
+        text = text.replace(f"__INLINE_CODE_{i}__", inline_code)
+    
+    logging.info("    - Convertiti puntini di sospensione in \\ldots")
+    return text
+
+def escape_math_characters_in_text(text: str) -> str:
+    """Gestisce caratteri matematici nel testo normale, proteggendo i blocchi di codice."""
+    code_blocks = []
+    inline_code_blocks = []
+    math_blocks = []
+    
+    def save_code_block(match):
+        code_blocks.append(match.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+    
+    def save_inline_code(match):
+        inline_code_blocks.append(match.group(0))
+        return f"__INLINE_CODE_{len(inline_code_blocks)-1}__"
+    
+    def save_math_block(match):
+        math_blocks.append(match.group(0))
+        return f"__MATH_BLOCK_{len(math_blocks)-1}__"
+    
+    # Proteggi blocchi esistenti
+    text = re.sub(r"```.*?```", save_code_block, text, flags=re.DOTALL)
+    text = re.sub(r"(?<!_)`([^`\n]+?)`(?!_)", save_inline_code, text)
+    text = re.sub(r"\$.*?\$", save_math_block, text)  # Proteggi matematica esistente
+    text = re.sub(r'\\[a-zA-Z]+\{[^}]*\}', save_math_block, text)  # Proteggi comandi LaTeX
+    
+    # Converti espressioni matematiche comuni nel testo
+    # 2^20 -> $2^{20}$
+    text = re.sub(r'\b(\d+)\^(\d+)\b', r'$\1^{\2}$', text)
+    
+    # Gestisci altri caratteri matematici
+    text = text.replace('≈', r'$\approx$')
+    text = text.replace('π', r'$\pi$')
+    text = text.replace('×', r'$\times$')
+    text = text.replace('÷', r'$\div$')
+    
+    # Ripristina blocchi protetti
+    for i, math_block in enumerate(math_blocks):
+        text = text.replace(f"__MATH_BLOCK_{i}__", math_block)
+    for i, code_block in enumerate(code_blocks):
+        text = text.replace(f"__CODE_BLOCK_{i}__", code_block)
+    for i, inline_code in enumerate(inline_code_blocks):
+        text = text.replace(f"__INLINE_CODE_{i}__", inline_code)
+    
+    logging.info("    - Gestiti caratteri matematici nel testo normale")
+    return text
+
+def convert_custom_italics(text: str) -> str:
+    """Converte ''testo'', ''testo'' e "testo" in corsivo LaTeX \textit{...}, 
+    ma protegge i blocchi di codice da modifiche."""
+    
+    # Step 1: Proteggi i blocchi di codice con placeholder
+    code_blocks = []
+    inline_code_blocks = []
+    
+    # Salva e sostituisci blocchi di codice multilinea ```
+    def save_code_block(match):
+        code_blocks.append(match.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+    
+    # Salva e sostituisci codice inline `
+    def save_inline_code(match):
+        inline_code_blocks.append(match.group(0))
+        return f"__INLINE_CODE_{len(inline_code_blocks)-1}__"
+    
+    # Proteggi blocchi di codice multilinea
+    text = re.sub(r"```.*?```", save_code_block, text, flags=re.DOTALL)
+    
+    # Proteggi codice inline (evita di matchare dentro i placeholder già creati)
+    text = re.sub(r"(?<!_)`([^`\n]+?)`(?!_)", save_inline_code, text)
+    
+    # Step 2: Converti le virgolette nel testo rimanente
+    # Prima gestisce le virgolette doppie diritte
+    text = re.sub(r'"([^"]*)"', r"\\textit{\1}", text)
+    
+    # Poi gestisce le virgolette singole doppie (dritte e curve)
+    pattern = re.compile(r"(?:''|'')(.*?)(?:''|'')")
+    text = pattern.sub(r"\\textit{\1}", text)
+    
+    # Step 3: Ripristina i blocchi di codice
+    # Ripristina blocchi di codice multilinea
+    for i, code_block in enumerate(code_blocks):
+        text = text.replace(f"__CODE_BLOCK_{i}__", code_block)
+    
+    # Ripristina codice inline
+    for i, inline_code in enumerate(inline_code_blocks):
+        text = text.replace(f"__INLINE_CODE_{i}__", inline_code)
+    
+    logging.info("    - Convertito corsivo da virgolette (blocchi di codice protetti)")
+    return text
+
+def escape_percent_signs(text: str) -> str:
+    """Converte % in \\% LaTeX, ma protegge i blocchi di codice."""
+    code_blocks = []
+    inline_code_blocks = []
+    
+    def save_code_block(match):
+        code_blocks.append(match.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+    
+    def save_inline_code(match):
+        inline_code_blocks.append(match.group(0))
+        return f"__INLINE_CODE_{len(inline_code_blocks)-1}__"
+    
+    # Proteggi blocchi di codice
+    text = re.sub(r"```.*?```", save_code_block, text, flags=re.DOTALL)
+    text = re.sub(r"(?<!_)`([^`\n]+?)`(?!_)", save_inline_code, text)
+    
+    # Converti % solo nel testo normale
+    text = text.replace('%', '\\%')
+    
+    # Ripristina blocchi di codice
+    for i, code_block in enumerate(code_blocks):
+        text = text.replace(f"__CODE_BLOCK_{i}__", code_block)
+    for i, inline_code in enumerate(inline_code_blocks):
+        text = text.replace(f"__INLINE_CODE_{i}__", inline_code)
+    
+    logging.info("    - Escapati simboli % in \\%")
+    return text
+
+def convert_tilde(text: str) -> str:
+    """Converte ~ in \textasciitilde{} LaTeX."""
+    # Proteggi i blocchi di codice come in convert_custom_italics
+    code_blocks = []
+    inline_code_blocks = []
+    
+    def save_code_block(match):
+        code_blocks.append(match.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+    
+    def save_inline_code(match):
+        inline_code_blocks.append(match.group(0))
+        return f"__INLINE_CODE_{len(inline_code_blocks)-1}__"
+    
+    # Proteggi blocchi di codice
+    text = re.sub(r"```.*?```", save_code_block, text, flags=re.DOTALL)
+    text = re.sub(r"(?<!_)`([^`\n]+?)`(?!_)", save_inline_code, text)
+    
+    # Converti tilde solo nel testo normale
+    text = text.replace('~', '\\textasciitilde{}')
+    
+    # Ripristina blocchi di codice
+    for i, code_block in enumerate(code_blocks):
+        text = text.replace(f"__CODE_BLOCK_{i}__", code_block)
+    for i, inline_code in enumerate(inline_code_blocks):
+        text = text.replace(f"__INLINE_CODE_{i}__", inline_code)
+    
+    logging.info("    - Convertite tilde (~) in \\textasciitilde{}")
+    return text
+
+def convert_bold_text(text: str) -> str:
+    """Converte **testo** in \textbf{testo} e gestisce underscore."""
+    def replacer_logic(match):
+        bold_text = match.group(1)
+        # Rimuovi questa riga, non è più necessaria!
+        # bold_text = bold_text.replace('_', r'\_') 
+        return f"\\textbf{{{bold_text}}}"
+    
+    # Converti **testo** in grassetto
+    text = re.sub(r'\*\*(.*?)\*\*', replacer_logic, text)
+    
+    logging.info("    - Convertito testo grassetto") # Aggiorna il messaggio di log
+    return text
+
 def process_markdown_content(md_content: str, md_filename_for_this_content: str, section_index: int, is_first_section: bool) -> str:
     logging.info(f"Processando contenuto per la sezione {section_index} ({md_filename_for_this_content})...")
     
     latex_content = md_content
     
-    # Fase 2 e precedenti:
-    latex_content = remove_transcription_citations(latex_content) # Rimuove anche i richiami, non solo le definizioni
+    # Fase 1: Rimozione citazioni trascrizione (prima di tutto)
+    latex_content = remove_transcription_citations(latex_content)
+
+    latex_content = convert_bold_text(latex_content)          # **testo** → \textbf{testo} (con _ escaped)
+    
+    # Fase 2: Conversioni di caratteri speciali nel testo normale
+    latex_content = convert_custom_italics(latex_content)     # Virgolette → corsivo
+    latex_content = convert_tilde(latex_content)              # ~ → \textasciitilde{}
+    latex_content = escape_percent_signs(latex_content)       # % → \% (nel testo normale)
+    latex_content = escape_ellipsis(latex_content)                 # ... → \ldots
+    latex_content = escape_math_characters_in_text(latex_content)  # 2^20 → $2^{20}$, π → $\pi$
+
+    # Fase 3: Conversione blocchi di codice
+    latex_content = convert_code_blocks(latex_content)
+    latex_content = convert_inline_code(latex_content)        # Con escape migliorato
+
+    # Fase 4: Conversioni strutturali
     latex_content = convert_headings(latex_content)
     latex_content = convert_numbered_lists(latex_content)
-    latex_content = convert_emphasis_quotes(latex_content)
-    
-    # Fase 3:
+    latex_content = convert_bulleted_lists(latex_content)
+
+    # Fase 5: Altri comandi
     latex_content = apply_persona_command(latex_content)
     
-    # Fase 4: Sostituisci i richiami bibliografici [^key] con \cite{bib_key}
-    # Questa deve avvenire DOPO la rimozione delle trascrizioni (che rimuove anche i loro richiami)
-    # e DOPO la raccolta bibliografica globale.
+    # Fase 6: Sostituzioni bibliografiche
     latex_content = replace_markdown_citations_in_text(latex_content, md_filename_for_this_content)
 
-    # Pulizia finale dei paragrafi e rimozione delle definizioni di note bibliografiche rimaste (quelle non-trascrizione)
-    latex_content = re.sub(r"\[\^(\w+)\]:\s*.+\n?", "", latex_content) # Rimuove tutte le definizioni di note rimaste
+    # Pulizia finale
+    latex_content = re.sub(r"\[\^(\w+)\]:\s*.+\n?", "", latex_content)
     latex_content = manage_paragraphs(latex_content)
     
     latex_content = f"% --- Contenuto LaTeX autogenerato da {md_filename_for_this_content} (sezione {section_index}) ---\n\n" + latex_content
     return latex_content
-
 # --- Script Principale (logica di naming e generazione all.tex aggiornata) ---
 def main():
     logging.info("Avvio conversione Markdown -> LaTeX...")
