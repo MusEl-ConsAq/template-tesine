@@ -1,6 +1,30 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage{ME_AQ_temp}
 \usepackage{tabularx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\setmonofont{Fira Code}
+% \setmonofont{Source Code Pro}
+% \setmonofont{DejaVu Sans Mono}
+% \setmonofont{JuliaMono} % Ottimo per caratteri scientifici e matematici
+
+\usepackage{listings}
+\usepackage{microtype}
+% \sloppy % Prova a rimuoverlo o commentarlo. Usa emergencystretch che è meno aggressivo.
+\emergencystretch=2em % Ho aumentato leggermente il valore, puoi regolarlo
+
+\lstset{
+    % Il font di base ora sarà quello impostato da \setmonofont
+    basicstyle=\ttfamily\footnotesize, 
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numbersep=5pt,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    breakindent=1.5em,
+    breakautoindent=true,
+}
 
 %% -------------------------------------- %%
 %  - impostare il titolo della tesina in entrambe le righe 
